@@ -84,6 +84,11 @@ export const ERROR_CONFIG_TEXT_INVALID_CONFIG = `Invalid config passed to Signer
 export const CURRENCY_CODE_XNO = "XNO";
 
 /**
+ * Decimal places of XNO: 1 XNO = 10^30 raw.
+ */
+export const XNO_DECIMALS = 30;
+
+/**
  * Used by Client to signal that it wants work generated for its send block.
  */
 export const CLIENT_NO_WORK: string = "0000000000000000";

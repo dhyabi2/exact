@@ -1,6 +1,22 @@
-import { PaymentPayload, PaymentRequirements, SchemeNetworkClient } from "@x402/core/types";
+import {
+  DefaultAsset,
+  Network,
+  PaymentPayload,
+  PaymentRequirements,
+  SchemeNetworkClient,
+} from "@x402/core/types";
 import { SignerClass, ExactNanoPayload } from "../types";
 import { StateBlock } from "nano-sdk/blocks";
+import { CURRENCY_CODE_XNO, XNO_DECIMALS } from "../constants";
+
+/**
+ * The XNO entry `findDefaultAsset` returns for Nano networks.
+ */
+const XNO_DEFAULT_ASSET: DefaultAsset = {
+  asset: CURRENCY_CODE_XNO,
+  decimals: XNO_DECIMALS,
+  symbol: CURRENCY_CODE_XNO,
+};
 
 /**
  * Implementation of the x402 Nano "exact" payment scheme for Clients.
@@ -20,6 +36,25 @@ export class ExactNanoScheme implements SchemeNetworkClient {
    * @param signer - The Signer instance used for generating send blocks and communicating with Nano RPC
    */
   constructor(private readonly signer: SignerClass) {}
+
+  /**
+   * Reverse lookup used by the x402Client spend controls.
+   *
+   * Returns the XNO entry when the requirement's asset is exactly "XNO" (the asset the server
+   * writes and the facilitator checks) on a `nano:` network, so a client with default spend
+   * controls admits Nano requirements. The default `maxAmountPerPayment` of "$1" is then read
+   * as 1 whole XNO (10^30 raw) per payment; raise or disable it with `setSpendControls`.
+   *
+   * @param asset - The asset from the payment requirements
+   * @param network - The network from the payment requirements
+   * @returns The XNO default asset entry, or undefined for any other asset or network
+   */
+  findDefaultAsset(asset: string, network: Network): DefaultAsset | undefined {
+    if (asset !== CURRENCY_CODE_XNO || !network.startsWith("nano:")) {
+      return undefined;
+    }
+    return XNO_DEFAULT_ASSET;
+  }
 
   /**
    * Creates a payment payload for the Exact scheme with the specified requirements.
