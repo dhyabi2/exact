@@ -100,6 +100,7 @@ const WORK_GENERATION_CONFIG = {
 export const CLIENT_SIGNER_CONFIG = z
   .object({
     accountPrivateKey: PrivateKeyString(),
+    representative: AccountString().optional(),
     ...RPC_CONFIG,
     ...WORK_GENERATION_CONFIG,
     ...BASE_CONFIG,

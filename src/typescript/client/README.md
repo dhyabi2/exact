@@ -32,9 +32,15 @@ The configuration object to pass into Signer has the following shape:
   rpcApiKey: "LPb5P...CWiqw", // OPTIONAL - Bearer authentication token if needed for access to Nano node RPC URL
   workGenerationUrl: "https://...", // OPTIONAL - URL of work generation endpoint 
   workGenerationApiKey: "tG0nH...asRgk", // OPTIONAL - Bearer authentication token if needed for access to work generation URL
-  workGenerator: function ({block, network}) {/* ...generate work here... */} // OPTIONAL - Custom work generation function
+  workGenerator: function ({block, network}) {/* ...generate work here... */}, // OPTIONAL - Custom work generation function
+  representative: "nano_1rep...", // OPTIONAL - Representative set on every send block; when unset, the current one is kept
 }
 ```
+
+`signer.generateSendBlock({ ..., representative })` sets a representative on one send block only. A send block that
+carries a representative also moves the account's voting weight to it, so this is accepted only when `representative`
+is set in the Signer configuration: the next send block without it sets the configured representative back, also
+after a restart.
 
 ### 2. Configure Work Generation
 

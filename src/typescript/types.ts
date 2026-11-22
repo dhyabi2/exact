@@ -77,6 +77,12 @@ export type GenerateSendBlockParams = {
   amount: RawAmountString;
   network: Network;
   skipWorkGeneration?: boolean;
+  /**
+   * Representative to set on this one send block, for example one derived from the
+   * order by a binding scheme. Requires `representative` in the client signer config,
+   * which the next send block without this field sets back.
+   */
+  representative?: AccountString;
 };
 
 /**

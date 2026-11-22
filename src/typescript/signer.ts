@@ -421,6 +421,27 @@ class Signer implements SignerClass {
       );
     }
 
+    if (params.representative !== undefined) {
+      if (!AccountString().safeParse(params.representative).success) {
+        throw new Error(`${ERROR_BLOCK_GENERATION} - Invalid representative account`);
+      }
+
+      // A send block that carries a representative also moves the payer's voting weight to it,
+      // so a per-payment representative is only accepted when there is a configured one to restore.
+      if (!clientSignerConfig.representative) {
+        throw new Error(
+          `${ERROR_BLOCK_GENERATION} - A per-payment representative needs "representative" in the client signer config, so the next block can restore it`,
+        );
+      }
+    }
+
+    // Per-payment representative, else the configured one (this restores it after a
+    // per-payment send, also across restarts), else the frontier's (unchanged default).
+    const representative =
+      params.representative ??
+      clientSignerConfig.representative ??
+      sourceAccountFrontierBlockInfo.contents.representative;
+
     let block: StateBlock;
 
     block = createSendBlock({
@@ -428,7 +449,7 @@ class Signer implements SignerClass {
       destination: params.payTo,
       frontierBlock: sourceAccountFrontierBlockInfo.contents,
       privateKey: clientSignerConfig.accountPrivateKey,
-      representative: sourceAccountFrontierBlockInfo.contents.representative,
+      representative,
     });
 
     if (!params.skipWorkGeneration) {
